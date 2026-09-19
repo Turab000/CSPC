@@ -5,6 +5,48 @@ One complete test is given as a model. Add the two tests described in the
 lab handout (a negative-rate test, and a test against the analytical law).
 Run with:  pytest -v
 """
+import numpy as np
+import pytest
+
+from decay import simulate
+
+
+# Müəllimin verdiyi hazır test
+def test_initial_value():
+    result = simulate(1000, 0.4)
+    assert result[0] == 1000
+
+
+# Sənin əlavə etdiyin test 2
+def test_negative_rate():
+    with pytest.raises(ValueError):
+        simulate(1000, -0.4)
+
+
+def test_average_matches_theory():
+    N0 = 1000
+    rate = 0.4
+    dt = 0.05
+    t = 3.0
+
+    steps = int(t / dt)
+    results = []
+
+    for seed in range(200):
+        simulation = simulate(
+            N0,
+            rate,
+            dt=dt,
+            steps=steps,
+            seed=seed
+        )
+        results.append(simulation[-1])
+
+    average = np.mean(results)
+
+    expected = N0 * np.exp(-rate * t)
+
+    assert average == pytest.approx(expected, rel=0.05)
 
 import numpy as np
 import pytest
