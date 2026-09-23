@@ -40,4 +40,3 @@ axes[1].set_xlabel("Time")
 
 # TODO 4: save the figure as figure.png
 plt.savefig("figure.png")
-l
