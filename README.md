@@ -36,3 +36,29 @@ Create the environment for a given lab:
 - I learned how to use Git branches and pytest for automated testing, and how to compare a stochastic radioactive decay simulation with the theoretical exponential decay model.
 - The NumPy implementation was significantly faster than the pure-Python loop implementation.
 
+## PW1 - Lab B: Data, Plotting and Automation
+
+**What I built:**
+- I created the PW1/Lab B structure and added the observed decay dataset and plotting script.
+- I used NumPy to read the `decay_observed.csv` file and extracted the time and observed count values.
+- I calculated the analytical exponential decay curve using the model \(N(t)=N_0e^{-\lambda t}\) with \(\lambda = 0.3\).
+- I used Matplotlib to create a 1x2 figure comparing the observed data with the analytical decay curve.
+- I created a Snakemake pipeline to automate the generation of `figure.png`.
+
+**Observed data vs analytical model:**
+- The observed count decreases with time and follows a clear exponential decay trend.
+- The observed data and the analytical curve show very similar behaviour on the same scale.
+- The analytical model provides a good representation of the observed decay data.
+
+**Snakemake:**
+- Input: `decay_observed.csv`
+- Output: `figure.png`
+- Command used: `python plot.py`
+- The pipeline rebuilds `figure.png` when the input changes or when the output file is missing.
+- If nothing has changed, Snakemake detects that the output is already up to date and does not rerun the task.
+
+**Conclusion:**
+- I learned how to read experimental data from a CSV file using NumPy.
+- I learned how to compare observed data with an analytical mathematical model using Matplotlib.
+- I learned how to automate a simple data-processing workflow using Snakemake.
+- The observed data showed good agreement with the expected exponential decay law.
