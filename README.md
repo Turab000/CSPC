@@ -62,3 +62,19 @@ Create the environment for a given lab:
 - I learned how to compare observed data with an analytical mathematical model using Matplotlib.
 - I learned how to automate a simple data-processing workflow using Snakemake.
 - The observed data showed good agreement with the expected exponential decay law.
+
+## PW2 — Lab A: Motion from Tracking Data
+
+The position data from `freefall.csv` was used to calculate velocity and acceleration using `np.gradient()`.
+
+### Results
+- **Mean acceleration: -8.5797 m/s²**
+- **Acceleration standard deviation: 28.7161 m/s²**
+- **Theoretical acceleration: -9.81 m/s²**
+- **Sampling interval: 0.1 s**
+
+The acceleration is very noisy because numerical differentiation amplifies small measurement errors. Since acceleration is calculated after differentiating twice, the noise becomes much larger.
+
+The noisy acceleration was integrated back to velocity and position using `cumulative_trapezoid()`. The recovered position stayed close to the original data, showing that **integration suppresses noise while differentiation amplifies it**.
+
+The final position, velocity and acceleration plots are saved in **`motion.png`**.
