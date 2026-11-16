@@ -1,13 +1,3 @@
-"""
-PW2 Lab B Part 4 -- chemical equilibrium via the equilibrium constant K.
-
-Reaction  H2 + I2 <=> 2 HI, starting from 1 mol H2 and 1 mol I2.
-As the reaction proceeds by an extent x:  H2 = 1-x,  I2 = 1-x,  HI = 2x.
-At equilibrium the composition satisfies the equilibrium constant
-        K = [HI]^2 / ([H2][I2]) = (2x)^2 / ((1-x)(1-x)).
-Given K, find the extent x. Solve it TWO ways and compare.
-Run:  python equilibrium.py
-"""
 import numpy as np
 import matplotlib.pyplot as plt
 from scipy.optimize import newton, minimize

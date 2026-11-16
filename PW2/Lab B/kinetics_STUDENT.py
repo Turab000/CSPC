@@ -1,10 +1,3 @@
-"""
-PW2 Lab B Part 3 -- fit a reaction's rate constant to measured data.
-
-A first-order reaction decays as  C(t) = C0 * exp(-k*t).  You have noisy
-concentration-vs-time measurements; find the k that best matches them.
-Complete the TODOs. Run:  python kinetics.py
-"""
 import numpy as np
 import matplotlib.pyplot as plt
 from scipy.optimize import minimize

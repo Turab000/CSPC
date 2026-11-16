@@ -1,11 +1,3 @@
-"""
-PW2 Lab B Part 5 (bonus) -- find a titration's equivalence point.
-
-titration.csv holds a titration curve: pH versus the volume of base added.
-The equivalence point is the volume where the pH changes fastest (the steep
-jump). Numerically, that is where the SLOPE of the pH curve is largest.
-Run:  python titration.py
-"""
 import numpy as np
 import matplotlib.pyplot as plt
 
