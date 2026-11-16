@@ -78,3 +78,63 @@ The acceleration is very noisy because numerical differentiation amplifies small
 The noisy acceleration was integrated back to velocity and position using `cumulative_trapezoid()`. The recovered position stayed close to the original data, showing that **integration suppresses noise while differentiation amplifies it**.
 
 The final position, velocity and acceleration plots are saved in **`motion.png`**.
+
+
+# PW2 — Lab B: Optimization in Chemistry
+
+## Part 2: Three optimization methods
+
+We compared gradient descent, Newton's method,
+and SLSQP.
+
+For f(x) = (x-3)^2 + 1, all three methods
+found the minimum at x = 3.
+
+For g(x) = x^4 - 3x^2 + x + 5, the results
+depend on the starting point and the method.
+
+Newton's method finds stationary points,
+which are not necessarily minima. Starting
+at x = 0, it converges to a local maximum.
+
+Gradient descent and SLSQP search for minima.
+
+## Part 3: Reaction kinetics
+
+We fitted the model C(t) = C0 * exp(-k*t)
+to the experimental data.
+
+Fitted rate constant: k = 0.2618
+
+The fitted curve follows the measured data.
+
+Plot: kinetics.png
+
+## Part 4: Chemical equilibrium
+
+Reaction: H2 + I2 <-> 2HI
+Equilibrium constant: K = 15.6
+
+Newton's method and SLSQP give approximately
+the same equilibrium extent:
+
+x = 0.66385
+
+Equilibrium amounts:
+H2 = 0.33615 mol
+I2 = 0.33615 mol
+HI = 1.32770 mol
+
+Plot: equilibrium.png
+
+## Part 5: Titration
+
+We calculated the slope of the pH curve
+using np.gradient().
+
+The maximum slope occurs at:
+
+Equivalence point = 50.0 mL
+
+Plot: titration.png
+
