@@ -303,3 +303,79 @@ conda activate cspc
 python session1.py
 python session2.py
 The two scripts print the numerical results and generate the figures listed above. The resulting files can then be committed and pushed to the CSPC repository.
+
+# PW4 – Machine Learning
+
+Run everything with one command from `PW4/`: `snakemake --cores 1`
+
+Data: Yeh, I-C. (1998), *Modeling of strength of high-performance concrete using artificial neural networks*, Cement and Concrete Research 28(12), UCI "Concrete Compressive Strength". Wine data: Forina et al., UCI "Wine", loaded with scikit-learn.
+
+*(Items in [brackets] are numbers from my own run, tables are in `results/`.)*
+
+---
+
+## Session A – Concrete
+
+**Variables.** cement, slag, ash, water, superplastic, coarse_agg, fine_agg are in kg/m³. age is in days. The target, strength, is in MPa. I checked the new names against `concrete.variables` and the order matches.
+
+**Cleaning.** There were 25 duplicate rows and no missing values, so 1030 became 1005 rows. A duplicated row is a problem because after the split one copy can be in train and the other in test. The model has then seen the test row already and the score looks better than it really is. In `describe()`, coarse_agg (~974) and fine_agg (~773) have much bigger numbers than superplastic (~6), so scaling matters later. In the plots, strength goes up with cement but is very scattered. With age it rises fast and then flattens.
+
+**Split.** 80/20 with random_state=42 gives 804 train rows and 201 test rows.
+
+**A4 Linear regression.** strength = [intercept] + [β]·cement + … + [β]·age, in MPa, with MPa per kg/m³ for ingredients and MPa per day for age. Metrics: [table A4]. The residuals against age are not random: [describe pattern]. A pattern like this means the model is missing something. A straight line cannot follow the fast-then-slow growth with age.
+
+**A5 Polynomial.** [table A5]. The number of features is 8, 44, 164 and 494 for degrees 1 to 4. I choose the degree with the lowest test RMSE: [degree]. At degree 4 there are 494 features and only 804 training rows, so the model nearly memorises the training data and the test error gets worse. Adjusted R² does not save us here, because it is computed on training data and the penalty for p is small. Only the test set shows the problem.
+
+**A6 Classification (≥ 40 MPa).**
+- KNN: very small K overfits (train accuracy 1.0) and very large K is too smooth. I chose K = [K]. Without the scaler the test accuracy is [x] instead of [y], because big-scale columns dominate the distance. Over 5 splits the accuracies are [list] (std [x]). Differences smaller than this spread are not meaningful.
+- Tree: when depth grows, train accuracy goes to 1.0 but test accuracy stops improving, so the gap grows. I chose depth [d], which is the smallest depth near the best test accuracy. I lose a tiny bit of accuracy but I can read the tree. The root question is [paste], and it makes physical sense, since young or low-cement concrete is weak.
+
+**A7 Metrics.** [table A_metrics]. On a construction site the dangerous mistake is a false positive (we say the concrete reaches 40 MPa, but it doesn't). Precision controls it. Thresholds for KNN: [table]. I chose [t], the lowest one with precision ≥ 0.95. The price is lower recall, so we reject some good mixes.
+
+**A8 Importance.** [table]. Raw coefficients have different units (per kg/m³ vs per day), so they can't be compared. Standardised ones can, and the ranking changes. The methods agree that [top inputs] matter most. This fits the engineers' rule about water/cement and age. A high importance doesn't mean that changing the ingredient changes the strength, because importance only shows what the model uses. The data are observed mixes, not experiments (like in PW3).
+
+**Bonus.** [table]. With log(age) and w/b the test R² is [x] with only 8 features, close to the polynomial models with many more features. Physics knowledge can beat model flexibility.
+
+---
+
+## Session B – Wine
+
+**Data.** 178 Italian wines, 3 cultivars, 13 chemical measurements. Proline has the largest range (1402, std 315), then magnesium (std 14). The smallest are nonflavanoid phenols and hue.
+
+**Raw PCA.** PC1 explains 99.8% of the variance and its loading on proline is 0.9998. PCA doesn't rescale, and proline simply has the biggest numbers. So PC1 is a units artifact, not "the main chemical difference".
+
+**Scaled PCA.** PC1 36.2%, PC2 19.2%, so the PC1–PC2 plane keeps 55.4%. We need 8 components for 90%.
+- PC1: positive for flavanoids (+0.42), total phenols (+0.40), OD280 (+0.38), proanthocyanins, hue, proline. Negative for nonflavanoid phenols (−0.30), malic acid, alcalinity. So it is a "phenol-rich vs acidic" axis.
+- PC2: positive for colour intensity (+0.53), alcohol (+0.48), proline, ash, magnesium. Negative for hue. So it is a "dark and strong" axis.
+- By eye I see 3 groups in the scatter.
+
+**K-Means.** With n_init=1 the inertia changes with the seed (1277.9 to 1282.5), because each run starts from random centres and stops in a local minimum. n_init=10 keeps the best of 10 runs. The inertia for k=1…10 drops a lot until k=3 (2314 → 1659 → 1278) and then only slowly, so the elbow is at **k = 3**. Inertia always goes down when k grows, so we can't just minimise it.
+
+**Clusters** (sizes 65 / 51 / 62):
+- Cluster 0: light, low-alcohol wines (alcohol 12.3, proline 510, colour intensity 3.0).
+- Cluster 1: very dark wines (colour intensity 7.2) with low flavanoids (0.8) and low hue, and the most malic acid.
+- Cluster 2: strong wines with high alcohol (13.7), lots of proline (1100) and flavanoids (3.0).
+
+**The reveal.**
+
+| K-Means on | agreement |
+|---|---|
+| scaled data | 0.966 |
+| raw data | 0.702 |
+| first 2 PCs | 0.966 |
+
+On raw data, proline and magnesium dominate the distances (same problem as raw PCA), so the result is bad. Scaled data treats all 13 measurements equally. Two PCs are enough because the groups live in the main directions. K-Means never saw the labels, so the three grape varieties must have clearly different chemistry.
+
+**Bonus.** KNN on 13 scaled features and scaler + PCA(2) + KNN both give 0.933 on 45 test wines. It is not a fair comparison: one wine is 2.2 points, K-Means is scored on all 178 wines it was fitted on, and its agreement uses the labels afterwards to name the clusters.
+
+---
+
+## B7. Snakemake
+
+1. `snakemake -n` shows a plan of 4 jobs: fetch, session_a, session_b, all. Nothing runs.
+2. After deleting `data/` and `results/`, `snakemake --cores 1` runs fetch first, then session_a and session_b, then all.
+3. The second run says "Nothing to be done", because all outputs exist and are newer than their inputs.
+4. After I change a hyperparameter in `sessionA.py`, only session_a (and all) rerun. session_b is unchanged. fetch doesn't rerun because its output exists and `sessionA.py` is not its input.
+
+Command to reproduce everything: `snakemake --cores 1`
+
